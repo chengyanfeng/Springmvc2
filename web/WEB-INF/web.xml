@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         id="WebApp_ID" version="2.5">
+
+    <!--
+     前沿：当我们去启动一个WEB项目时，容器包括（JBoss、Tomcat等）首先会读取项目web.xml配置文件里的配置，当这一步骤没有出错并且完成之后，项目才能正常地被启动起来
+    会启动servlet小程序，
+    会启动filter程序，每个配置都会启动，相当于在启动web项目的时候，通过web.xml同时启动那么多小程序
+    而每个小程序的 <url-pattern>/</url-pattern>
+    就是启动的后访问的路径。
+    1.每个servlet都是单独的小程序，像是并联，只能访问一次
+    2.而filter是串联的都必须访问，配置哪个在上优先访问哪一个。
+
+
+
+    -->
+    <!--1.当我们启动web服务器时候,通过这个welcome来配置欢迎页面-->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    <!--2.错误页面，当报错的时候去找这个错误页面-->
+      <error-page>
+         <!-- &lt;!&ndash; 上面配置了当系统发生404错误时，跳转到错误处理页面NotFound.jsp。&ndash;&gt;-->
+          <error-code>404</error-code> <!--&lt;!&ndash;当报404错误的时候，返回这个页面 &ndash;&gt;-->
+          <location>/index.jsp</location>
+      </error-page>
+    <!--当是空指针的时候，返回这个页面-->
+    <error-page>
+         <exception-type>java.lang.Exception</exception-type>
+         <location>/index.jsp</location>
+     </error-page>
+
+
+    <!--3.通过这个Servlet控制器，加载springmvc的配置文件 -->
+    <servlet>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!--
+			实际上也可以不通过 contextConfigLocation 来配置 SpringMVC 的配置文件, 而使用默认的.
+			默认的配置文件为: /WEB-INF/<servlet-name>-servlet.xml
+		-->
+
+       <!-- <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springmvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>-->
+
+    </servlet>
+<!--当访问的时候url链接时候，加载web.xml，访问的路径。
+<url-pattern>/out</url-pattern>
+http:8080//get/out
+那么就会配置优先使用这个Servlet执行。
+-->
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!-- 4.配置filter-->
+    <!--
+        配置 org.springframework.web.filter.HiddenHttpMethodFilter: 可以把 POST 请求转为 DELETE 或 POST 请求
+        -->
+    <!--5.这里是restful风格的filter拦截器，所有的restful都会通过这个转变成相应的方法。-->
+    <filter>
+        <!--suppress ServletWithoutMappingInspection -->
+        <filter-name>HiddenHttpMethodFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+    </filter>
+    <!--这块的是配置任何访问都可以访问 -->
+    <filter-mapping>
+        <filter-name>HiddenHttpMethodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+
+</web-app>
